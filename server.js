@@ -1,4 +1,5 @@
 const express = require('express');
+const axios = require('axios');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
@@ -6,25 +7,20 @@ const FEED_URL = 'https://www.weho.org/Home/Components/RssFeeds/RssFeed/View?ctI
 
 app.get('/rss', async (req, res) => {
   try {
-    const response = await fetch(FEED_URL, {
+    const response = await axios.get(FEED_URL, {
       headers: {
-        'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.0.0 Safari/537.36',
+        'User-Agent': 'Mozilla/5.0',
         'Accept': 'application/rss+xml,application/xml;q=0.9,*/*;q=0.8',
         'Accept-Language': 'en-US,en;q=0.5',
         'Referer': 'https://www.weho.org/',
-        'Connection': 'keep-alive',
-      }
+      },
+      responseType: 'text'
     });
 
-    if (!response.ok) {
-      throw new Error(`HTTP error! Status: ${response.status}`);
-    }
-
-    const data = await response.text();
     res.set('Content-Type', 'application/rss+xml');
-    res.send(data);
+    res.send(response.data);
   } catch (error) {
-    console.error('Error fetching RSS feed:', error);
+    console.error('Error fetching RSS feed:', error.message);
     res.status(500).send('Error fetching RSS feed');
   }
 });
